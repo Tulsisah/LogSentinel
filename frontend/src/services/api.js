@@ -17,16 +17,36 @@ api.interceptors.request.use((config) => {
 
 // Logs & Ingestion
 export const uploadLogs = async (file) => {
-  const formData = new FormData();
-  formData.append('file', file);
-  const response = await api.post('/logs/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+  // Read file as base64 to ensure Cloud WAF (e.g. Render/Cloudflare) doesn't block cyberattack signatures (SQLi, XSS, Path Traversal) in logs
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const rawResult = String(reader.result || '');
+        const base64Data = rawResult.includes(',') ? rawResult.split(',')[1] : rawResult;
+        const response = await api.post('/logs/paste', {
+          content: base64Data,
+          filename: file.name,
+          is_base64: true
+        });
+        resolve(response.data);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
   });
-  return response.data;
 };
 
 export const pasteLogs = async (content, filename = 'pasted_logs.txt') => {
-  const response = await api.post('/logs/paste', { content, filename });
+  // Base64 encode pasted content to protect against WAF false positives
+  const base64Content = btoa(unescape(encodeURIComponent(content)));
+  const response = await api.post('/logs/paste', {
+    content: base64Content,
+    filename,
+    is_base64: true
+  });
   return response.data;
 };
 

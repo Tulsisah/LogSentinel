@@ -8,6 +8,7 @@ from ..services.parser import parse_log_file
 from ..detection.rules import analyze_rules, calculate_risk
 from ..ml.anomaly import run_anomaly_detection
 from ..services.correlator import correlate_incidents
+import base64
 import pandas as pd
 import json
 from datetime import datetime
@@ -24,9 +25,34 @@ def get_db():
     finally:
         db.close()
 
+def decode_payload_text(raw_text: str, is_base64: bool = False) -> str:
+    """
+    Safely decode log content. When is_base64 is True or the string is base64 encoded,
+    decodes it back to raw log lines. This prevents Cloud WAFs (like Render/Cloudflare)
+    from blocking uploads that contain SQL Injection or Path Traversal attack signatures.
+    """
+    if not raw_text:
+        return ""
+    if is_base64:
+        try:
+            return base64.b64decode(raw_text).decode('utf-8', errors='replace')
+        except Exception:
+            return raw_text
+    # Auto-detect base64 string
+    cleaned = raw_text.strip()
+    if len(cleaned) > 40 and "\n" not in cleaned and len(cleaned) % 4 == 0:
+        try:
+            candidate = base64.b64decode(cleaned, validate=True).decode('utf-8', errors='replace')
+            if "\n" in candidate or " " in candidate:
+                return candidate
+        except Exception:
+            pass
+    return raw_text
+
 class PasteLogRequest(BaseModel):
     content: str
     filename: Optional[str] = "manual_paste.log"
+    is_base64: Optional[bool] = False
 
 @router.post("/upload")
 async def upload_log_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -52,6 +78,8 @@ async def upload_log_file(file: UploadFile = File(...), db: Session = Depends(ge
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to decode file as UTF-8: {str(e)}")
 
+    content_str = decode_payload_text(content_str)
+
     # 3. Parse
     df = parse_log_file(content_str, filename)
     if df.empty:
@@ -64,10 +92,12 @@ async def paste_log_content(payload: PasteLogRequest, db: Session = Depends(get_
     if not payload.content.strip():
         raise HTTPException(status_code=400, detail="Log content cannot be empty.")
 
-    if len(payload.content.encode('utf-8')) > MAX_FILE_SIZE:
+    decoded_text = decode_payload_text(payload.content, payload.is_base64 or False)
+
+    if len(decoded_text.encode('utf-8')) > MAX_FILE_SIZE:
         raise HTTPException(status_code=413, detail="Pasted content exceeds 25MB limit.")
 
-    df = parse_log_file(payload.content, payload.filename or "pasted_logs.txt")
+    df = parse_log_file(decoded_text, payload.filename or "pasted_logs.txt")
     if df.empty:
         raise HTTPException(status_code=400, detail="Could not extract any valid log entries from the pasted text.")
 
