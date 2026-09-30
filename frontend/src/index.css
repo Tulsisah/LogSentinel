@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-light: #334155;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+}
+
+:root {
+  --color-primary: #059669;
+  --color-primary-dark: #047857;
+  --color-background: #E6FDFF;
+  --color-surface: #ffffff;
+  --color-surface-light: #bdecee;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-text-main: #0f172a;
+  --color-text-muted: #475569;
+}
+
+.dark {
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-light: #334155;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-text-main: #f8fafc;
+  --color-text-muted: #94a3b8;
+}
+
+.logo-icon {
+  filter: none;
+}
+
+.dark .logo-icon {
+  filter: brightness(0) invert(1);
+}
+
+body {
+  @apply bg-background text-text-main antialiased font-sans m-0 p-0;
+}
