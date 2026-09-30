@@ -1,25 +1,9 @@
-# 🛡️ AI-Log Sentinel
+# 🛡️ AI-Log Sentinel — Complete Documentation & User Guide
 
 [![Live Demo](https://img.shields.io/badge/Demo-Live%20Platform-00C7B7?style=for-the-badge&logo=render&logoColor=white)](https://ai-logsentinel.onrender.com)
 [![GitHub](https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Tulsisah/LogSentinel)
-[![Documentation](https://img.shields.io/badge/Docs-User%20Guide-4285F4?style=for-the-badge&logo=readme&logoColor=white)](DOCS.md)
-
-An enterprise-grade, beginner-friendly cybersecurity Blue Team security platform. **AI-Log Sentinel** ingests system, network, and security logs, normalizes them, correlates security alerts using a rule-based detection engine, detects zero-day anomalies via machine learning (**Scikit-learn Isolation Forest**), maps findings to the **MITRE ATT&CK framework**, and presents real-time intelligence in a modern SOC dashboard.
 
 ---
-
-### 🔗 Project Links
-
-- 🌐 **Live Demo Website:** [https://ai-logsentinel.onrender.com](https://ai-logsentinel.onrender.com)
-- 💻 **GitHub Repository:** [https://github.com/Tulsisah/LogSentinel](https://github.com/Tulsisah/LogSentinel)
-- 📖 **Full Documentation:** [Click here to view Complete Documentation & Setup Guide (DOCS.md)](DOCS.md)
-
----
-
-<details>
-<summary><b>👇 Click here to expand and view complete project documentation inline</b></summary>
-
-<br>
 
 ## 📌 Table of Contents
 - [✨ Key Features](#-key-features)
@@ -285,5 +269,3 @@ For deploying to cloud providers such as **Render**, **Railway**, **Vercel**, **
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
-</details>
